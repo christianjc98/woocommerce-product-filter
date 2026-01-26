@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "woo-fast-filter/product-filter",
+	"version": "1.0.0",
+	"title": "Product Filter",
+	"category": "widgets",
+	"icon": "filter",
+	"description": "A high-performance product filter for WooCommerce.",
+	"keywords": [ "filter", "woocommerce", "products", "search" ],
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"multiple": false
+	},
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"default": "sidebar",
+			"enum": [ "sidebar", "top", "modal" ]
+		},
+		"style": {
+			"type": "string",
+			"default": "clean",
+			"enum": [ "clean", "soft", "editorial" ]
+		},
+		"autoApply": {
+			"type": "boolean",
+			"default": false
+		},
+		"showActiveFilters": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"textdomain": "woo-fast-filter",
+	"editorScript": "file:./index.js",
+	"render": "file:../../templates/filter-block.php"
+}

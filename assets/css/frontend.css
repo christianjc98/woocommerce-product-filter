@@ -1,0 +1,896 @@
+/**
+ * Woo Fast Filter - Frontend Styles
+ *
+ * Mobile-first design.
+ * No frameworks - pure CSS for minimal footprint.
+ * Uses CSS custom properties for easy theming and style variants.
+ *
+ * @package WooFastFilter
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+.wff-wrapper {
+	--wff-primary: #111;
+	--wff-primary-hover: #333;
+	--wff-text: #1a1a1a;
+	--wff-text-muted: #717171;
+	--wff-border: #e0e0e0;
+	--wff-bg: #fff;
+	--wff-bg-hover: #f7f7f7;
+	--wff-radius: 8px;
+	--wff-radius-sm: 4px;
+	--wff-transition: 0.2s ease;
+	--wff-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+	--wff-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+	--wff-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Soft style variant */
+.wff-style-soft {
+	--wff-primary: #5c6ac4;
+	--wff-primary-hover: #4959bd;
+	--wff-border: #eaeaea;
+	--wff-bg-hover: #f5f6ff;
+	--wff-radius: 12px;
+	--wff-radius-sm: 6px;
+}
+
+/* Editorial style variant */
+.wff-style-editorial {
+	--wff-primary: #1a1a1a;
+	--wff-text: #0d0d0d;
+	--wff-border: #d0d0d0;
+	--wff-radius: 2px;
+	--wff-radius-sm: 1px;
+	--wff-font: "Georgia", "Times New Roman", serif;
+}
+
+/* ==========================================================================
+   Base / Reset
+   ========================================================================== */
+
+.wff-wrapper {
+	font-family: var(--wff-font);
+	color: var(--wff-text);
+	line-height: 1.5;
+	box-sizing: border-box;
+}
+
+.wff-wrapper *,
+.wff-wrapper *::before,
+.wff-wrapper *::after {
+	box-sizing: inherit;
+}
+
+.wff-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ==========================================================================
+   Mobile Toggle Button
+   Sticky button at bottom of viewport on mobile.
+   ========================================================================== */
+
+.wff-mobile-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	position: fixed;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 999;
+	padding: 12px 24px;
+	background: var(--wff-primary);
+	color: #fff;
+	border: none;
+	border-radius: 50px;
+	font-size: 14px;
+	font-weight: 600;
+	font-family: var(--wff-font);
+	cursor: pointer;
+	box-shadow: var(--wff-shadow-lg);
+	transition: background var(--wff-transition), transform var(--wff-transition);
+}
+
+.wff-mobile-toggle:hover {
+	background: var(--wff-primary-hover);
+}
+
+.wff-mobile-toggle:active {
+	transform: translateX(-50%) scale(0.96);
+}
+
+/* ==========================================================================
+   Filter Panel
+   Bottom sheet on mobile, sidebar/top on desktop.
+   ========================================================================== */
+
+.wff-panel {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	max-height: 85vh;
+	background: var(--wff-bg);
+	border-radius: var(--wff-radius) var(--wff-radius) 0 0;
+	box-shadow: var(--wff-shadow-lg);
+	transform: translateY(100%);
+	transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.wff-panel.is-open {
+	transform: translateY(0);
+}
+
+.wff-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--wff-border);
+	flex-shrink: 0;
+}
+
+.wff-panel-title {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.wff-panel-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	line-height: 1;
+	color: var(--wff-text-muted);
+	cursor: pointer;
+	padding: 4px;
+}
+
+.wff-panel-body {
+	overflow-y: auto;
+	padding: 16px 20px;
+	flex-grow: 1;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Overlay */
+.wff-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.4);
+	z-index: 999;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.wff-overlay.is-visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* ==========================================================================
+   Active Filters
+   ========================================================================== */
+
+.wff-active-filters {
+	margin-bottom: 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--wff-border);
+}
+
+.wff-active-filters[hidden] {
+	display: none;
+}
+
+.wff-active-filters-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.wff-active-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--wff-text-muted);
+}
+
+.wff-clear-all {
+	background: none;
+	border: none;
+	font-size: 13px;
+	color: var(--wff-primary);
+	cursor: pointer;
+	padding: 0;
+	font-family: var(--wff-font);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.wff-active-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.wff-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px;
+	background: var(--wff-bg-hover);
+	border: 1px solid var(--wff-border);
+	border-radius: 50px;
+	font-size: 13px;
+	color: var(--wff-text);
+}
+
+.wff-tag-remove {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 14px;
+	line-height: 1;
+	color: var(--wff-text-muted);
+	cursor: pointer;
+	margin-left: 2px;
+}
+
+.wff-tag-remove:hover {
+	color: var(--wff-text);
+}
+
+/* ==========================================================================
+   Filter Groups
+   ========================================================================== */
+
+.wff-filter-group {
+	border: none;
+	padding: 0;
+	margin: 0 0 4px;
+}
+
+.wff-group-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--wff-text);
+	cursor: pointer;
+	user-select: none;
+	border: none;
+	background: none;
+}
+
+.wff-chevron {
+	transition: transform var(--wff-transition);
+}
+
+.wff-group-title[aria-expanded="false"] .wff-chevron {
+	transform: rotate(-90deg);
+}
+
+.wff-group-content {
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--wff-border);
+}
+
+.wff-collapsible .wff-group-content[hidden] {
+	display: none;
+}
+
+/* ==========================================================================
+   Checkbox Styles
+   ========================================================================== */
+
+.wff-checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 0;
+	cursor: pointer;
+	font-size: 14px;
+	transition: color var(--wff-transition);
+}
+
+.wff-checkbox-label:hover {
+	color: var(--wff-primary);
+}
+
+.wff-checkbox {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	border: 1.5px solid var(--wff-border);
+	border-radius: var(--wff-radius-sm);
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: all var(--wff-transition);
+	position: relative;
+	background: var(--wff-bg);
+}
+
+.wff-checkbox:checked {
+	background: var(--wff-primary);
+	border-color: var(--wff-primary);
+}
+
+.wff-checkbox:checked::after {
+	content: "";
+	position: absolute;
+	left: 5px;
+	top: 2px;
+	width: 5px;
+	height: 9px;
+	border: solid #fff;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.wff-checkbox:focus-visible {
+	outline: 2px solid var(--wff-primary);
+	outline-offset: 2px;
+}
+
+.wff-checkbox-text {
+	flex-grow: 1;
+}
+
+.wff-count {
+	color: var(--wff-text-muted);
+	font-size: 12px;
+}
+
+.wff-children {
+	padding-left: 24px;
+}
+
+/* ==========================================================================
+   Price Range
+   ========================================================================== */
+
+.wff-price-range {
+	padding: 4px 0;
+}
+
+.wff-price-inputs {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.wff-price-label {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	background: var(--wff-bg-hover);
+	border: 1px solid var(--wff-border);
+	border-radius: var(--wff-radius-sm);
+	padding: 8px 10px;
+	transition: border-color var(--wff-transition);
+}
+
+.wff-price-label:focus-within {
+	border-color: var(--wff-primary);
+}
+
+.wff-price-currency {
+	font-size: 13px;
+	color: var(--wff-text-muted);
+	margin-right: 4px;
+}
+
+.wff-price-input {
+	border: none;
+	background: none;
+	width: 100%;
+	font-size: 14px;
+	font-family: var(--wff-font);
+	color: var(--wff-text);
+	outline: none;
+	-moz-appearance: textfield;
+}
+
+.wff-price-input::-webkit-outer-spin-button,
+.wff-price-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.wff-price-separator {
+	color: var(--wff-text-muted);
+	flex-shrink: 0;
+}
+
+/* Dual range slider */
+.wff-price-slider {
+	position: relative;
+	height: 20px;
+}
+
+.wff-range {
+	position: absolute;
+	width: 100%;
+	height: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	pointer-events: none;
+	outline: none;
+}
+
+.wff-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--wff-bg);
+	border: 2px solid var(--wff-primary);
+	cursor: pointer;
+	pointer-events: auto;
+	position: relative;
+	z-index: 2;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wff-range::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--wff-bg);
+	border: 2px solid var(--wff-primary);
+	cursor: pointer;
+	pointer-events: auto;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Apply Button
+   ========================================================================== */
+
+.wff-actions {
+	padding: 16px 0 0;
+}
+
+.wff-apply-btn {
+	display: block;
+	width: 100%;
+	padding: 12px 20px;
+	background: var(--wff-primary);
+	color: #fff;
+	border: none;
+	border-radius: var(--wff-radius);
+	font-size: 14px;
+	font-weight: 600;
+	font-family: var(--wff-font);
+	cursor: pointer;
+	transition: background var(--wff-transition), transform var(--wff-transition);
+}
+
+.wff-apply-btn:hover {
+	background: var(--wff-primary-hover);
+}
+
+.wff-apply-btn:active {
+	transform: scale(0.98);
+}
+
+/* ==========================================================================
+   Product Results
+   ========================================================================== */
+
+.wff-results {
+	width: 100%;
+}
+
+.wff-results-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 0;
+	margin-bottom: 16px;
+	border-bottom: 1px solid var(--wff-border);
+}
+
+.wff-results-count {
+	font-size: 14px;
+	color: var(--wff-text-muted);
+}
+
+.wff-sort-select {
+	padding: 6px 28px 6px 10px;
+	border: 1px solid var(--wff-border);
+	border-radius: var(--wff-radius-sm);
+	font-size: 13px;
+	font-family: var(--wff-font);
+	color: var(--wff-text);
+	background: var(--wff-bg);
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23717171' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+}
+
+/* ==========================================================================
+   Product Grid
+   ========================================================================== */
+
+.wff-products-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+}
+
+.wff-product-card {
+	display: flex;
+	flex-direction: column;
+	text-decoration: none;
+	color: inherit;
+	transition: transform var(--wff-transition);
+}
+
+.wff-product-card:hover {
+	transform: translateY(-2px);
+}
+
+.wff-product-image {
+	position: relative;
+	aspect-ratio: 1;
+	overflow: hidden;
+	border-radius: var(--wff-radius);
+	background: var(--wff-bg-hover);
+	margin-bottom: 10px;
+}
+
+.wff-product-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+}
+
+.wff-product-card:hover .wff-product-image img {
+	transform: scale(1.04);
+}
+
+.wff-product-badge {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	padding: 3px 8px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	border-radius: var(--wff-radius-sm);
+}
+
+.wff-badge-sale {
+	background: #e74c3c;
+	color: #fff;
+}
+
+.wff-badge-out {
+	background: var(--wff-text-muted);
+	color: #fff;
+}
+
+.wff-product-name {
+	font-size: 14px;
+	font-weight: 500;
+	margin: 0 0 4px;
+	line-height: 1.3;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.wff-product-price {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--wff-text);
+}
+
+.wff-product-price del {
+	font-weight: 400;
+	color: var(--wff-text-muted);
+	margin-right: 4px;
+}
+
+.wff-product-price ins {
+	text-decoration: none;
+	color: #e74c3c;
+}
+
+.wff-product-rating {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--wff-text-muted);
+}
+
+.wff-stars {
+	color: #f5a623;
+	letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   Loading & Empty States
+   ========================================================================== */
+
+.wff-loading {
+	display: flex;
+	justify-content: center;
+	padding: 40px 0;
+}
+
+.wff-loading[hidden] {
+	display: none;
+}
+
+.wff-spinner {
+	width: 28px;
+	height: 28px;
+	border: 2.5px solid var(--wff-border);
+	border-top-color: var(--wff-primary);
+	border-radius: 50%;
+	animation: wff-spin 0.6s linear infinite;
+}
+
+@keyframes wff-spin {
+	to { transform: rotate(360deg); }
+}
+
+.wff-no-results {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--wff-text-muted);
+	font-size: 15px;
+}
+
+.wff-no-results[hidden] {
+	display: none;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.wff-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	padding: 24px 0;
+}
+
+.wff-page-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 8px;
+	background: none;
+	border: 1px solid var(--wff-border);
+	border-radius: var(--wff-radius-sm);
+	font-size: 14px;
+	font-family: var(--wff-font);
+	color: var(--wff-text);
+	cursor: pointer;
+	transition: all var(--wff-transition);
+}
+
+.wff-page-btn:hover {
+	background: var(--wff-bg-hover);
+	border-color: var(--wff-primary);
+}
+
+.wff-page-btn.is-active {
+	background: var(--wff-primary);
+	border-color: var(--wff-primary);
+	color: #fff;
+}
+
+.wff-page-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Desktop Layout (768px+)
+   ========================================================================== */
+
+@media (min-width: 768px) {
+	/* Hide mobile toggle on desktop */
+	.wff-mobile-toggle {
+		display: none;
+	}
+
+	/* Reset panel from mobile bottom sheet */
+	.wff-panel {
+		position: static;
+		max-height: none;
+		transform: none;
+		border-radius: var(--wff-radius);
+		box-shadow: none;
+		border: 1px solid var(--wff-border);
+		transition: none;
+	}
+
+	.wff-panel-header {
+		display: none; /* No header needed on desktop */
+	}
+
+	.wff-panel-body {
+		padding: 20px;
+	}
+
+	.wff-overlay {
+		display: none;
+	}
+
+	/* Product grid: 3 columns on tablet */
+	.wff-products-grid {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 20px;
+	}
+
+	/* Sidebar layout */
+	.wff-layout-sidebar {
+		display: grid;
+		grid-template-columns: 280px 1fr;
+		gap: 32px;
+		align-items: start;
+	}
+
+	.wff-layout-sidebar .wff-panel {
+		position: sticky;
+		top: 20px;
+	}
+
+	/* Top layout */
+	.wff-layout-top {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.wff-layout-top .wff-form {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px;
+		align-items: flex-start;
+	}
+
+	.wff-layout-top .wff-filter-group {
+		flex: 0 0 auto;
+		min-width: 180px;
+		position: relative;
+	}
+
+	.wff-layout-top .wff-group-content {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	.wff-layout-top .wff-actions {
+		padding: 0;
+		align-self: flex-end;
+	}
+
+	.wff-layout-top .wff-apply-btn {
+		width: auto;
+	}
+
+	/* Modal layout stays same as mobile but centered */
+	.wff-layout-modal .wff-panel {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		bottom: auto;
+		right: auto;
+		transform: translate(-50%, -50%) scale(0.95);
+		opacity: 0;
+		visibility: hidden;
+		max-width: 500px;
+		width: 90%;
+		max-height: 80vh;
+		border-radius: var(--wff-radius);
+		box-shadow: var(--wff-shadow-lg);
+		transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+	}
+
+	.wff-layout-modal .wff-panel.is-open {
+		transform: translate(-50%, -50%) scale(1);
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.wff-layout-modal .wff-panel-header {
+		display: flex;
+	}
+
+	.wff-layout-modal .wff-overlay {
+		display: block;
+	}
+
+	.wff-layout-modal .wff-mobile-toggle {
+		display: flex;
+		position: static;
+		transform: none;
+		margin-bottom: 16px;
+	}
+
+	.wff-layout-modal .wff-mobile-toggle:active {
+		transform: scale(0.96);
+	}
+}
+
+/* ==========================================================================
+   Large Desktop (1024px+)
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+	.wff-products-grid {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 24px;
+	}
+
+	.wff-layout-sidebar {
+		grid-template-columns: 300px 1fr;
+	}
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+	.wff-panel,
+	.wff-overlay,
+	.wff-product-card,
+	.wff-product-image img,
+	.wff-apply-btn,
+	.wff-mobile-toggle {
+		transition: none;
+	}
+
+	.wff-spinner {
+		animation-duration: 1.5s;
+	}
+}
