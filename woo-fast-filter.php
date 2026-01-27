@@ -199,17 +199,35 @@ final class Plugin {
 	 * Block is registered from block.json for better performance.
 	 * WordPress caches block metadata when loaded from JSON.
 	 *
+	 * Passes the isPro flag to the editor so the block JS can
+	 * disable Pro-only controls in the Free version.
+	 *
 	 * @return void
 	 */
 	public function register_block(): void {
 		$block_path = WFF_PLUGIN_DIR . 'blocks/product-filter';
 
-		if ( file_exists( $block_path . '/block.json' ) ) {
-			register_block_type(
-				$block_path,
-				[
-					'render_callback' => [ $this, 'render_filter_block' ],
-				]
+		if ( ! file_exists( $block_path . '/block.json' ) ) {
+			return;
+		}
+
+		$block = register_block_type(
+			$block_path,
+			[
+				'render_callback' => [ $this, 'render_filter_block' ],
+			]
+		);
+
+		// Pass Free/Pro flag to editor JS.
+		// The block script handle is auto-generated from block.json registration.
+		if ( $block && ! empty( $block->editor_script_handles ) ) {
+			$handle = $block->editor_script_handles[0];
+			wp_add_inline_script(
+				$handle,
+				'var wffEditorConfig = ' . wp_json_encode( [
+					'isPro' => is_pro_active(),
+				] ) . ';',
+				'before'
 			);
 		}
 	}
@@ -220,6 +238,10 @@ final class Plugin {
 	 * Server-side rendering for better SEO and initial load performance.
 	 * The block HTML is generated once and cached by the browser.
 	 *
+	 * Free version enforces fixed values for layout, style, and autoApply.
+	 * Only showActiveFilters is user-configurable in Free.
+	 * Pro unlocks all attributes via is_pro_active().
+	 *
 	 * @param array $attributes Block attributes.
 	 * @return string Rendered HTML.
 	 */
@@ -229,16 +251,21 @@ final class Plugin {
 			return '';
 		}
 
-		// Merge with defaults.
-		$attributes = wp_parse_args(
-			$attributes,
-			[
-				'layout'            => 'sidebar',
-				'style'             => 'clean',
-				'autoApply'         => false,
-				'showActiveFilters' => true,
-			]
-		);
+		$defaults = get_free_defaults();
+
+		if ( is_pro_active() ) {
+			// Pro: respect all saved block attributes.
+			$attributes = wp_parse_args( $attributes, $defaults );
+		} else {
+			// Free: enforce fixed defaults for Pro-locked attributes.
+			// Only showActiveFilters can be changed by the user.
+			$attributes = array_merge(
+				$defaults,
+				[
+					'showActiveFilters' => $attributes['showActiveFilters'] ?? $defaults['showActiveFilters'],
+				]
+			);
+		}
 
 		// Load the template.
 		ob_start();

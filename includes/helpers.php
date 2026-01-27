@@ -15,6 +15,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Check if the Pro version is active.
+ *
+ * Central feature flag for gating Pro-only functionality.
+ * In Free, this always returns false. The Pro plugin will
+ * override this by defining WFF_PRO_ACTIVE as true, or by
+ * hooking into the 'wff_is_pro_active' filter.
+ *
+ * Usage:
+ *   if ( is_pro_active() ) { // Pro-only logic }
+ *
+ * @return bool True if Pro is active.
+ */
+function is_pro_active(): bool {
+	// Constant check: Pro plugin defines this on load.
+	if ( defined( 'WFF_PRO_ACTIVE' ) && WFF_PRO_ACTIVE ) {
+		return true;
+	}
+
+	// Filter check: allows Pro to activate via hook.
+	return (bool) apply_filters( 'wff_is_pro_active', false );
+}
+
+/**
+ * Get Free-version defaults for block attributes.
+ *
+ * These are the hard-coded values enforced in Free.
+ * Pro can override them via is_pro_active() checks.
+ *
+ * @return array Default attribute values.
+ */
+function get_free_defaults(): array {
+	return [
+		'layout'            => 'sidebar',  // Pro: top, modal.
+		'style'             => 'clean',    // Pro: soft, editorial.
+		'autoApply'         => false,      // Pro: user-configurable.
+		'showActiveFilters' => true,       // Free: user-configurable.
+	];
+}
+
+/**
  * Get available product categories for filtering.
  *
  * Returns only categories that have products assigned.

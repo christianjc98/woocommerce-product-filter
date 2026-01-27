@@ -21,10 +21,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Block attributes.
-$layout             = esc_attr( $attributes['layout'] ?? 'sidebar' );
-$style              = esc_attr( $attributes['style'] ?? 'clean' );
-$auto_apply         = ! empty( $attributes['autoApply'] );
-$show_active        = ! empty( $attributes['showActiveFilters'] );
+// Free version: layout, style, and autoApply are locked to defaults.
+// These are already enforced in render_filter_block(), but we guard
+// here too in case the template is loaded directly.
+if ( is_pro_active() ) {
+	$layout     = esc_attr( $attributes['layout'] ?? 'sidebar' );
+	$style      = esc_attr( $attributes['style'] ?? 'clean' );
+	$auto_apply = ! empty( $attributes['autoApply'] );
+} else {
+	// Free: hard-coded. Pro unlocks layout, style, autoApply.
+	$layout     = 'sidebar';
+	$style      = 'clean';
+	$auto_apply = false;
+}
+
+// showActiveFilters is available in Free.
+$show_active = ! empty( $attributes['showActiveFilters'] );
 
 // Get filter data.
 $categories  = get_filter_categories();
