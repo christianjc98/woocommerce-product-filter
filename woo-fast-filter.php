@@ -199,37 +199,62 @@ final class Plugin {
 	 * Block is registered from block.json for better performance.
 	 * WordPress caches block metadata when loaded from JSON.
 	 *
-	 * Passes the isPro flag to the editor so the block JS can
-	 * disable Pro-only controls in the Free version.
+	 * The editor code is split across three files:
+	 *   - save.js  → window.wffBlock.Save  (null output)
+	 *   - edit.js  → window.wffBlock.Edit   (editor UI + Pro gating)
+	 *   - index.js → registerBlockType call (entry point, loaded last)
+	 *
+	 * save.js and edit.js are registered as separate scripts and listed
+	 * as dependencies in index.asset.php so they load before index.js.
 	 *
 	 * @return void
 	 */
 	public function register_block(): void {
 		$block_path = WFF_PLUGIN_DIR . 'blocks/product-filter';
+		$block_url  = WFF_PLUGIN_URL . 'blocks/product-filter';
 
 		if ( ! file_exists( $block_path . '/block.json' ) ) {
 			return;
 		}
 
-		$block = register_block_type(
+		// Register save.js — no UI dependencies, just wp-element.
+		wp_register_script(
+			'wff-block-save',
+			$block_url . '/save.js',
+			[],
+			WFF_VERSION,
+			true
+		);
+
+		// Register edit.js — needs the full Gutenberg component stack.
+		wp_register_script(
+			'wff-block-edit',
+			$block_url . '/edit.js',
+			[ 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ],
+			WFF_VERSION,
+			true
+		);
+
+		// Inject the Free/Pro flag before edit.js executes.
+		// edit.js reads window.wffEditorConfig.isPro to gate controls.
+		wp_add_inline_script(
+			'wff-block-edit',
+			'var wffEditorConfig = ' . wp_json_encode( [
+				'isPro' => is_pro_active(),
+			] ) . ';',
+			'before'
+		);
+
+		// Register the block from block.json.
+		// index.js is loaded via editorScript in block.json.
+		// index.asset.php lists wff-block-save and wff-block-edit as
+		// dependencies so they execute before index.js.
+		register_block_type(
 			$block_path,
 			[
 				'render_callback' => [ $this, 'render_filter_block' ],
 			]
 		);
-
-		// Pass Free/Pro flag to editor JS.
-		// The block script handle is auto-generated from block.json registration.
-		if ( $block && ! empty( $block->editor_script_handles ) ) {
-			$handle = $block->editor_script_handles[0];
-			wp_add_inline_script(
-				$handle,
-				'var wffEditorConfig = ' . wp_json_encode( [
-					'isPro' => is_pro_active(),
-				] ) . ';',
-				'before'
-			);
-		}
 	}
 
 	/**

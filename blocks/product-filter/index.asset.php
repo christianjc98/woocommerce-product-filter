@@ -2,17 +2,23 @@
 /**
  * Block editor script asset manifest.
  *
- * When using `file:./index.js` in block.json, WordPress looks for this file
- * to determine script dependencies. Without it, the script loads before
- * wp.blocks is available, so the block never registers.
+ * Declares dependencies for index.js (the block entry point).
+ * WordPress loads these scripts before index.js executes.
+ *
+ * Load order:
+ *   1. wff-block-save  → attaches window.wffBlock.Save
+ *   2. wff-block-edit  → attaches window.wffBlock.Edit
+ *   3. index.js        → reads both and calls registerBlockType
+ *
+ * wp-blocks is needed by index.js for registerBlockType.
+ * The remaining WP deps are pulled in by wff-block-edit's own
+ * dependency list (registered in PHP), so they're not repeated here.
  */
 return [
 	'dependencies' => [
 		'wp-blocks',
-		'wp-element',
-		'wp-block-editor',
-		'wp-components',
-		'wp-i18n',
+		'wff-block-save',
+		'wff-block-edit',
 	],
 	'version'      => '1.0.0',
 ];
