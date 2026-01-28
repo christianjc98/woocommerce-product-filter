@@ -123,19 +123,12 @@ final class Plugin {
 		// Enqueue frontend assets.
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_frontend_assets' ] );
 
-		// Cache invalidation hooks.
-		// These ensure cache stays fresh when products change.
-		add_action( 'woocommerce_update_product', [ $this, 'invalidate_cache' ] );
-		add_action( 'woocommerce_new_product', [ $this, 'invalidate_cache' ] );
-		add_action( 'woocommerce_delete_product', [ $this, 'invalidate_cache' ] );
-		add_action( 'created_product_cat', [ $this, 'invalidate_cache' ] );
-		add_action( 'edited_product_cat', [ $this, 'invalidate_cache' ] );
-		add_action( 'delete_product_cat', [ $this, 'invalidate_cache' ] );
-
-		// Invalidate when product attributes change.
-		add_action( 'woocommerce_attribute_added', [ $this, 'invalidate_cache' ] );
-		add_action( 'woocommerce_attribute_updated', [ $this, 'invalidate_cache' ] );
-		add_action( 'woocommerce_attribute_deleted', [ $this, 'invalidate_cache' ] );
+		// Pro feature — cache invalidation hooks.
+		// Only registered when caching is active (Pro).
+		// In Free, caching is disabled so there's nothing to invalidate.
+		// These hooks are registered late via woocommerce_init callback
+		// to ensure is_feature_enabled() can resolve correctly.
+		add_action( 'woocommerce_init', [ $this, 'register_cache_hooks' ] );
 
 		// HPOS compatibility declaration.
 		add_action( 'before_woocommerce_init', [ $this, 'declare_hpos_compatibility' ] );
@@ -356,10 +349,36 @@ final class Plugin {
 	}
 
 	/**
+	 * Register cache invalidation hooks.
+	 *
+	 * Pro feature — only registers hooks when caching is active.
+	 * In Free, caching is disabled so these hooks are never attached,
+	 * saving a small amount of overhead on every product save.
+	 *
+	 * @return void
+	 */
+	public function register_cache_hooks(): void {
+		// Pro feature — cache invalidation disabled in Free.
+		if ( ! is_feature_enabled( 'cache_invalidation' ) ) {
+			return;
+		}
+
+		add_action( 'woocommerce_update_product', [ $this, 'invalidate_cache' ] );
+		add_action( 'woocommerce_new_product', [ $this, 'invalidate_cache' ] );
+		add_action( 'woocommerce_delete_product', [ $this, 'invalidate_cache' ] );
+		add_action( 'created_product_cat', [ $this, 'invalidate_cache' ] );
+		add_action( 'edited_product_cat', [ $this, 'invalidate_cache' ] );
+		add_action( 'delete_product_cat', [ $this, 'invalidate_cache' ] );
+		add_action( 'woocommerce_attribute_added', [ $this, 'invalidate_cache' ] );
+		add_action( 'woocommerce_attribute_updated', [ $this, 'invalidate_cache' ] );
+		add_action( 'woocommerce_attribute_deleted', [ $this, 'invalidate_cache' ] );
+	}
+
+	/**
 	 * Invalidate all filter caches.
 	 *
-	 * Called when products, categories, or attributes change.
-	 * Uses a single transient to track cache version for efficiency.
+	 * Pro feature — called by cache invalidation hooks.
+	 * No-op in Free since Cache::flush() is gated internally.
 	 *
 	 * @return void
 	 */

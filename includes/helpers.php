@@ -55,6 +55,33 @@ function get_free_defaults(): array {
 }
 
 /**
+ * Check if a specific Pro feature is enabled.
+ *
+ * Granular feature flag for gating individual Pro capabilities.
+ * In Free, all Pro features return false.
+ * Pro can enable features selectively via the 'wff_feature_enabled' filter.
+ *
+ * Pro features:
+ *   - 'caching'            Smart transient-based query caching.
+ *   - 'cache_invalidation' Auto-invalidate cache on product changes.
+ *   - 'debounce'           Debounced AJAX filter requests.
+ *   - 'auto_apply'         Apply filters without button click.
+ *   - 'layout_options'     Top bar, modal layouts.
+ *   - 'style_options'      Soft, editorial visual styles.
+ *   - 'cache_warming'      Pre-populate cache after flush.
+ *
+ * @param string $feature Feature identifier.
+ * @return bool True if the feature is enabled.
+ */
+function is_feature_enabled( string $feature ): bool {
+	if ( ! is_pro_active() ) {
+		return false;
+	}
+
+	return (bool) apply_filters( 'wff_feature_enabled', true, $feature );
+}
+
+/**
  * Get available product categories for filtering.
  *
  * Returns only categories that have products assigned.
@@ -64,11 +91,15 @@ function get_free_defaults(): array {
  * @return array Array of category data.
  */
 function get_filter_categories( bool $hierarchical = true ): array {
-	$cache_key = 'wff_categories_' . ( $hierarchical ? 'hier' : 'flat' );
-	$cached    = get_transient( $cache_key );
+	// Pro feature — transient caching disabled in Free.
+	// In Free, categories are queried fresh on every request.
+	if ( is_feature_enabled( 'caching' ) ) {
+		$cache_key = 'wff_categories_' . ( $hierarchical ? 'hier' : 'flat' );
+		$cached    = get_transient( $cache_key );
 
-	if ( false !== $cached ) {
-		return $cached;
+		if ( false !== $cached ) {
+			return $cached;
+		}
 	}
 
 	$args = [
@@ -128,8 +159,10 @@ function get_filter_categories( bool $hierarchical = true ): array {
 		$categories[] = $category;
 	}
 
-	// Cache for 1 hour.
-	set_transient( $cache_key, $categories, WFF_CACHE_TTL );
+	// Pro feature — cache result for 1 hour.
+	if ( is_feature_enabled( 'caching' ) ) {
+		set_transient( $cache_key, $categories, WFF_CACHE_TTL );
+	}
 
 	return $categories;
 }
@@ -142,11 +175,14 @@ function get_filter_categories( bool $hierarchical = true ): array {
  * @return array Array of attribute data with terms.
  */
 function get_filter_attributes(): array {
-	$cache_key = 'wff_attributes';
-	$cached    = get_transient( $cache_key );
+	// Pro feature — transient caching disabled in Free.
+	if ( is_feature_enabled( 'caching' ) ) {
+		$cache_key = 'wff_attributes';
+		$cached    = get_transient( $cache_key );
 
-	if ( false !== $cached ) {
-		return $cached;
+		if ( false !== $cached ) {
+			return $cached;
+		}
 	}
 
 	$attributes = [];
@@ -191,8 +227,10 @@ function get_filter_attributes(): array {
 		];
 	}
 
-	// Cache for 1 hour.
-	set_transient( $cache_key, $attributes, WFF_CACHE_TTL );
+	// Pro feature — cache result for 1 hour.
+	if ( is_feature_enabled( 'caching' ) ) {
+		set_transient( $cache_key, $attributes, WFF_CACHE_TTL );
+	}
 
 	return $attributes;
 }
@@ -206,11 +244,14 @@ function get_filter_attributes(): array {
  * @return array Array with 'min' and 'max' keys.
  */
 function get_price_range(): array {
-	$cache_key = 'wff_price_range';
-	$cached    = get_transient( $cache_key );
+	// Pro feature — transient caching disabled in Free.
+	if ( is_feature_enabled( 'caching' ) ) {
+		$cache_key = 'wff_price_range';
+		$cached    = get_transient( $cache_key );
 
-	if ( false !== $cached ) {
-		return $cached;
+		if ( false !== $cached ) {
+			return $cached;
+		}
 	}
 
 	global $wpdb;
@@ -237,8 +278,10 @@ function get_price_range(): array {
 		'max' => $result ? (float) $result->max_price : 0,
 	];
 
-	// Cache for 1 hour.
-	set_transient( $cache_key, $range, WFF_CACHE_TTL );
+	// Pro feature — cache result for 1 hour.
+	if ( is_feature_enabled( 'caching' ) ) {
+		set_transient( $cache_key, $range, WFF_CACHE_TTL );
+	}
 
 	return $range;
 }

@@ -5,8 +5,13 @@
  * Provides custom REST endpoints for product filtering.
  * Custom endpoints are used instead of WooCommerce REST API because:
  * - We can return minimal JSON (smaller payloads).
- * - We can implement our own caching layer.
  * - No authentication overhead for public product data.
+ *
+ * Caching layer (Pro only):
+ *   The controller calls Cache::get() and Cache::set() around queries.
+ *   In Free, these are no-ops (get returns false, set does nothing),
+ *   so every request hits the database directly. Pro activates
+ *   transient-based result caching via is_feature_enabled('caching').
  *
  * @package WooFastFilter
  */
@@ -92,6 +97,7 @@ class REST_Controller {
 	 * @return \WP_REST_Response Response object.
 	 */
 	public function get_filters( \WP_REST_Request $request ): \WP_REST_Response {
+		// Pro feature — cache lookup. Returns false in Free (always miss).
 		$cache_key = 'filter_options';
 		$cached    = $this->cache->get( $cache_key );
 
@@ -107,6 +113,7 @@ class REST_Controller {
 			'price_range' => get_price_range(),
 		];
 
+		// Pro feature — cache store. No-op in Free.
 		$this->cache->set( $cache_key, $data );
 
 		$response = new \WP_REST_Response( $data );
@@ -127,7 +134,7 @@ class REST_Controller {
 		$params    = sanitize_filter_params( $request->get_params() );
 		$cache_key = generate_cache_key( $params );
 
-		// Check cache first.
+		// Pro feature — cache lookup. Returns false in Free (always miss).
 		$cached = $this->cache->get( $cache_key );
 
 		if ( false !== $cached ) {
@@ -140,7 +147,7 @@ class REST_Controller {
 		$query   = new Query_Builder( $params );
 		$results = $query->execute();
 
-		// Cache the results.
+		// Pro feature — cache store. No-op in Free.
 		$this->cache->set( $cache_key, $results );
 
 		$response = new \WP_REST_Response( $results );

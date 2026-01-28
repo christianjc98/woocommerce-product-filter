@@ -4,11 +4,16 @@
  * Vanilla JS for minimal footprint.
  * No framework dependencies - runs on any browser supporting ES6+.
  *
- * Performance decisions:
- * - Uses AbortController to cancel stale requests.
- * - Debounces rapid filter changes to avoid request flooding.
- * - Minimal DOM operations - uses DocumentFragment for batch updates.
- * - Event delegation where possible to reduce listeners.
+ * Free vs Pro features in this file:
+ *   Free:
+ *   - AbortController (correctness: prevents stale responses).
+ *   - DocumentFragment (standard rendering, not a scaling optimization).
+ *   - Manual "Apply filters" button workflow.
+ *
+ *   Pro (present but inactive in Free):
+ *   - Debounce utility — only invoked when autoApply=true (Pro).
+ *     In Free, autoApply is always false (enforced server-side),
+ *     so the debounce function is never called.
  *
  * @package WooFastFilter
  */
@@ -18,7 +23,11 @@
 
 	/**
 	 * Debounce utility.
-	 * Prevents flooding the server with requests on rapid filter changes.
+	 *
+	 * Pro feature — only invoked when autoApply is true.
+	 * In Free, autoApply is forced to false by PHP, so this function
+	 * is never called. It remains in the codebase so Pro can activate
+	 * it without shipping a separate JS bundle.
 	 */
 	function debounce( fn, delay ) {
 		var timer;
@@ -216,6 +225,10 @@
 		/**
 		 * Debounced fetch for auto-apply mode.
 		 * 300ms delay prevents excessive requests during rapid checkbox toggling.
+		 *
+		 * Pro feature — only called when this.autoApply is true.
+		 * In Free, autoApply is always false (server-enforced), so this
+		 * method is never invoked.
 		 */
 		debouncedFetch: debounce( function () {
 			this.fetchProducts();

@@ -2,9 +2,20 @@
 /**
  * Cache handler for Woo Fast Filter.
  *
+ * Pro feature — disabled in Free.
+ *
  * Implements a versioned caching strategy using WordPress transients.
  * Cache invalidation is handled through version increments rather than
  * deleting individual cache entries, which is more efficient for large catalogs.
+ *
+ * In Free, all cache methods are no-ops:
+ *   - get() always returns false (cache miss).
+ *   - set() is a no-op (never stores).
+ *   - delete() is a no-op.
+ *   - flush() is a no-op.
+ *   - warm() is a no-op.
+ *
+ * Pro activates caching via is_feature_enabled('caching').
  *
  * @package WooFastFilter
  */
@@ -21,11 +32,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Cache class for managing filter result caching.
  *
- * Performance Strategy:
- * - Uses WordPress transients (object cache if available, otherwise DB).
- * - Version-based invalidation: When products change, we increment a version
- *   number rather than deleting all cache entries. Old entries naturally expire.
- * - This approach is faster than deleting potentially hundreds of cache keys.
+ * Pro feature — all transient operations are gated behind is_feature_enabled('caching').
+ * Free version runs without any caching layer. Every REST request queries the database
+ * directly, which is acceptable for stores under 500 products.
  */
 class Cache {
 
@@ -58,10 +67,17 @@ class Cache {
 	/**
 	 * Get a cached value.
 	 *
+	 * Pro feature — always returns false in Free (cache miss).
+	 *
 	 * @param string $key Cache key (without version prefix).
-	 * @return mixed|false Cached value or false if not found.
+	 * @return mixed|false Cached value or false if not found / caching disabled.
 	 */
 	public function get( string $key ): mixed {
+		// Pro feature — caching disabled in Free.
+		if ( ! is_feature_enabled( 'caching' ) ) {
+			return false;
+		}
+
 		$versioned_key = $this->get_versioned_key( $key );
 		return get_transient( $versioned_key );
 	}
@@ -69,12 +85,19 @@ class Cache {
 	/**
 	 * Set a cached value.
 	 *
+	 * Pro feature — no-op in Free.
+	 *
 	 * @param string $key        Cache key (without version prefix).
 	 * @param mixed  $value      Value to cache.
 	 * @param int    $expiration Optional. Time until expiration in seconds. Default is WFF_CACHE_TTL.
 	 * @return bool True if value was set, false otherwise.
 	 */
 	public function set( string $key, mixed $value, int $expiration = 0 ): bool {
+		// Pro feature — caching disabled in Free.
+		if ( ! is_feature_enabled( 'caching' ) ) {
+			return false;
+		}
+
 		if ( 0 === $expiration ) {
 			$expiration = WFF_CACHE_TTL;
 		}
@@ -86,10 +109,17 @@ class Cache {
 	/**
 	 * Delete a specific cache entry.
 	 *
+	 * Pro feature — no-op in Free.
+	 *
 	 * @param string $key Cache key (without version prefix).
 	 * @return bool True if deleted, false otherwise.
 	 */
 	public function delete( string $key ): bool {
+		// Pro feature — caching disabled in Free.
+		if ( ! is_feature_enabled( 'caching' ) ) {
+			return false;
+		}
+
 		$versioned_key = $this->get_versioned_key( $key );
 		return delete_transient( $versioned_key );
 	}
@@ -97,19 +127,23 @@ class Cache {
 	/**
 	 * Flush all filter caches by incrementing version.
 	 *
+	 * Pro feature — no-op in Free (nothing to flush).
+	 *
 	 * Instead of deleting individual transients (which could be hundreds),
 	 * we simply increment the version number. This makes all existing cache
 	 * entries stale, and they'll be regenerated on next request.
 	 *
-	 * Old transients will be cleaned up by WordPress's transient garbage
-	 * collection when they expire.
-	 *
 	 * @return void
 	 */
 	public function flush(): void {
+		// Pro feature — caching disabled in Free.
+		if ( ! is_feature_enabled( 'caching' ) ) {
+			return;
+		}
+
 		$new_version   = $this->get_version() + 1;
 		$this->version = $new_version;
-		update_option( self::VERSION_KEY, $new_version, false ); // false = don't autoload.
+		update_option( self::VERSION_KEY, $new_version, false );
 
 		// Also clear the helper function caches.
 		delete_transient( 'wff_categories_hier' );
@@ -121,9 +155,6 @@ class Cache {
 	/**
 	 * Get a versioned cache key.
 	 *
-	 * Prepends the current version to the key, ensuring cache invalidation
-	 * happens automatically when the version changes.
-	 *
 	 * @param string $key Original cache key.
 	 * @return string Versioned cache key.
 	 */
@@ -134,14 +165,23 @@ class Cache {
 	/**
 	 * Get cache statistics.
 	 *
-	 * Useful for debugging and monitoring cache effectiveness.
+	 * Pro feature — returns empty stats in Free.
 	 *
 	 * @return array Cache statistics.
 	 */
 	public function get_stats(): array {
+		// Pro feature — no stats in Free.
+		if ( ! is_feature_enabled( 'caching' ) ) {
+			return [
+				'version'     => 0,
+				'entry_count' => 0,
+				'ttl_seconds' => 0,
+				'storage'     => 'disabled',
+			];
+		}
+
 		global $wpdb;
 
-		// Count current transients (only works with DB storage).
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -160,20 +200,19 @@ class Cache {
 	/**
 	 * Warm the cache with common queries.
 	 *
-	 * Can be called after cache flush to pre-populate common queries.
-	 * This reduces latency for the first users after a cache clear.
+	 * Pro feature — no-op in Free (caching is disabled).
 	 *
 	 * @return void
 	 */
 	public function warm(): void {
-		// Pre-fetch categories.
+		// Pro feature — cache warming disabled in Free.
+		if ( ! is_feature_enabled( 'cache_warming' ) ) {
+			return;
+		}
+
 		get_filter_categories( true );
 		get_filter_categories( false );
-
-		// Pre-fetch attributes.
 		get_filter_attributes();
-
-		// Pre-fetch price range.
 		get_price_range();
 	}
 }
