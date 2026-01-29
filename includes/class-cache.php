@@ -32,9 +32,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Cache class for managing filter result caching.
  *
+ * FREE FEATURE FREEZE — v1.0
  * Pro feature — all transient operations are gated behind is_feature_enabled('caching').
  * Free version runs without any caching layer. Every REST request queries the database
  * directly, which is acceptable for stores under 500 products.
+ * Do not enable any caching in Free.
  */
 class Cache {
 

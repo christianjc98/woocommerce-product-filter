@@ -30,8 +30,12 @@
 	var __                 = wp.i18n.__;
 
 	// --- Feature flag ---
+	// FREE FEATURE FREEZE — v1.0
 	// Passed from PHP (register_block → wp_add_inline_script).
 	// Free: false. Pro: true.
+	// In Free, Layout/Style/Auto-apply controls are VISIBLE but DISABLED.
+	// Only showActiveFilters is editable. Do not unlock new controls
+	// without gating behind isPro.
 	var isPro = window.wffEditorConfig && window.wffEditorConfig.isPro;
 
 	/**

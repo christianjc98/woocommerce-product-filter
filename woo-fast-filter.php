@@ -256,9 +256,11 @@ final class Plugin {
 	 * Server-side rendering for better SEO and initial load performance.
 	 * The block HTML is generated once and cached by the browser.
 	 *
+	 * FREE FEATURE FREEZE — v1.0
 	 * Free version enforces fixed values for layout, style, and autoApply.
 	 * Only showActiveFilters is user-configurable in Free.
 	 * Pro unlocks all attributes via is_pro_active().
+	 * Do not expose additional attributes in Free without Pro gating.
 	 *
 	 * @param array $attributes Block attributes.
 	 * @return string Rendered HTML.

@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Block attributes.
+// FREE FEATURE FREEZE — v1.0
 // Free version: layout, style, and autoApply are locked to defaults.
 // These are already enforced in render_filter_block(), but we guard
 // here too in case the template is loaded directly.

@@ -40,7 +40,10 @@ function is_pro_active(): bool {
 /**
  * Get Free-version defaults for block attributes.
  *
+ * FREE FEATURE FREEZE — v1.0
  * These are the hard-coded values enforced in Free.
+ * Do not add new configurable attributes here without
+ * gating them behind is_pro_active().
  * Pro can override them via is_pro_active() checks.
  *
  * @return array Default attribute values.

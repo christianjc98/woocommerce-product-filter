@@ -24,10 +24,11 @@
 	/**
 	 * Debounce utility.
 	 *
-	 * Pro feature — only invoked when autoApply is true.
-	 * In Free, autoApply is forced to false by PHP, so this function
-	 * is never called. It remains in the codebase so Pro can activate
-	 * it without shipping a separate JS bundle.
+	 * FREE FEATURE FREEZE — v1.0
+	 * Pro feature — debouncedFetch is only invoked when autoApply is true.
+	 * In Free, autoApply is forced to false by PHP, so debouncedFetch
+	 * is never called. The debounce wrapper on price inputs is a
+	 * correctness feature (prevents rapid reflows), not a Pro gate.
 	 */
 	function debounce( fn, delay ) {
 		var timer;
@@ -415,6 +416,10 @@
 					if ( error.name !== 'AbortError' ) {
 						console.error( 'WFF fetch error:', error );
 						self.setLoading( false );
+						// Show fallback when grid is empty (e.g. first load failure).
+						if ( self.dom.grid && self.dom.grid.children.length === 0 && self.dom.noResults ) {
+							self.dom.noResults.hidden = false;
+						}
 					}
 				} );
 		},
