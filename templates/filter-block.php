@@ -103,7 +103,10 @@ $wrapper_classes = sprintf(
 										class="wff-checkbox"
 									/>
 									<span class="wff-checkbox-text"><?php echo esc_html( $category['name'] ); ?></span>
-									<span class="wff-count">(<?php echo esc_html( (string) $category['count'] ); ?>)</span>
+									<?php // Pro feature: live term counts (disabled in Free). ?>
+									<?php if ( is_pro_active() ) : ?>
+										<span class="wff-count">(<?php echo esc_html( (string) $category['count'] ); ?>)</span>
+									<?php endif; ?>
 								</label>
 								<?php if ( ! empty( $category['children'] ) ) : ?>
 									<div class="wff-children">
@@ -115,7 +118,10 @@ $wrapper_classes = sprintf(
 													class="wff-checkbox"
 												/>
 												<span class="wff-checkbox-text"><?php echo esc_html( $child['name'] ); ?></span>
-												<span class="wff-count">(<?php echo esc_html( (string) $child['count'] ); ?>)</span>
+												<?php // Pro feature: live term counts (disabled in Free). ?>
+												<?php if ( is_pro_active() ) : ?>
+													<span class="wff-count">(<?php echo esc_html( (string) $child['count'] ); ?>)</span>
+												<?php endif; ?>
 											</label>
 										<?php endforeach; ?>
 									</div>
@@ -145,7 +151,10 @@ $wrapper_classes = sprintf(
 										class="wff-checkbox"
 									/>
 									<span class="wff-checkbox-text"><?php echo esc_html( $term['name'] ); ?></span>
-									<span class="wff-count">(<?php echo esc_html( (string) $term['count'] ); ?>)</span>
+									<?php // Pro feature: live term counts (disabled in Free). ?>
+									<?php if ( is_pro_active() ) : ?>
+										<span class="wff-count">(<?php echo esc_html( (string) $term['count'] ); ?>)</span>
+									<?php endif; ?>
 								</label>
 							<?php endforeach; ?>
 						</div>

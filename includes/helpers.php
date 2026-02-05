@@ -125,6 +125,8 @@ function get_filter_categories( bool $hierarchical = true ): array {
 	$categories = [];
 
 	foreach ( $terms as $term ) {
+		// Note: 'count' is included for Pro (live term counts).
+		// Free hides counts in template via is_pro_active() check.
 		$category = [
 			'id'    => $term->term_id,
 			'name'  => $term->name,
@@ -210,6 +212,8 @@ function get_filter_attributes(): array {
 			continue;
 		}
 
+		// Note: term 'count' is included for Pro (live term counts).
+		// Free hides counts in template via is_pro_active() check.
 		$attributes[] = [
 			'id'       => $attribute->attribute_id,
 			'name'     => $attribute->attribute_label,

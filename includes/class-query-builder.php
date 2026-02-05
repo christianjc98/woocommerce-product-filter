@@ -263,8 +263,8 @@ class Query_Builder {
 	/**
 	 * Get count of products matching current filters.
 	 *
+	 * Pro feature — used for live term counts (disabled in Free).
 	 * Lightweight query that only returns count, not full product objects.
-	 * Used for showing filter counts in the UI.
 	 *
 	 * @return int Number of matching products.
 	 */
