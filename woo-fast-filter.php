@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Woo Fast Filter
  * Plugin URI: https://example.com/woo-fast-filter
- * Description: High-performance WooCommerce product filtering with AJAX, caching, and Gutenberg block support.
+ * Description: High-performance WooCommerce product filtering with AJAX and Gutenberg block support.
  * Version: 1.0.0
  * Author: Your Name
  * Author URI: https://example.com
@@ -340,11 +340,16 @@ final class Plugin {
 					'position' => get_option( 'woocommerce_currency_pos' ),
 				],
 				'i18n'      => [
-					'loading'      => __( 'Loading...', 'woo-fast-filter' ),
-					'noProducts'   => __( 'No products found', 'woo-fast-filter' ),
-					'filterButton' => __( 'Filter', 'woo-fast-filter' ),
-					'clearAll'     => __( 'Clear all', 'woo-fast-filter' ),
-					'apply'        => __( 'Apply filters', 'woo-fast-filter' ),
+					'loading'       => __( 'Loading...', 'woo-fast-filter' ),
+					'noProducts'    => __( 'No products found', 'woo-fast-filter' ),
+					'filterButton'  => __( 'Filter', 'woo-fast-filter' ),
+					'clearAll'      => __( 'Clear all', 'woo-fast-filter' ),
+					'apply'         => __( 'Apply filters', 'woo-fast-filter' ),
+					'sale'          => __( 'Sale', 'woo-fast-filter' ),
+					'soldOut'       => __( 'Sold out', 'woo-fast-filter' ),
+					'product'       => __( 'product', 'woo-fast-filter' ),
+					'products'      => __( 'products', 'woo-fast-filter' ),
+					'removeFilter'  => __( 'Remove filter:', 'woo-fast-filter' ),
 				],
 			]
 		);

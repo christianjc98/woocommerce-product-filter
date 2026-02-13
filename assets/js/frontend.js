@@ -70,6 +70,7 @@
 			grid: wrapper.querySelector( '.wff-products-grid' ),
 			loading: wrapper.querySelector( '.wff-loading' ),
 			noResults: wrapper.querySelector( '.wff-no-results' ),
+			noResultsReset: wrapper.querySelector( '.wff-no-results-reset' ),
 			pagination: wrapper.querySelector( '.wff-pagination' ),
 			resultsCount: wrapper.querySelector( '.wff-results-count' ),
 			sortSelect: wrapper.querySelector( '.wff-sort-select' ),
@@ -190,6 +191,13 @@
 			// Clear all.
 			if ( this.dom.clearAll ) {
 				this.dom.clearAll.addEventListener( 'click', function () {
+					self.clearFilters();
+				} );
+			}
+
+			// No-results reset button.
+			if ( this.dom.noResultsReset ) {
+				this.dom.noResultsReset.addEventListener( 'click', function () {
 					self.clearFilters();
 				} );
 			}
@@ -533,10 +541,14 @@
 			}
 			if ( product.on_sale ) {
 				html +=
-					'<span class="wff-product-badge wff-badge-sale">Sale</span>';
+					'<span class="wff-product-badge wff-badge-sale">' +
+					this.escHtml( this.config.i18n && this.config.i18n.sale ? this.config.i18n.sale : 'Sale' ) +
+					'</span>';
 			} else if ( ! product.in_stock ) {
 				html +=
-					'<span class="wff-product-badge wff-badge-out">Sold out</span>';
+					'<span class="wff-product-badge wff-badge-out">' +
+					this.escHtml( this.config.i18n && this.config.i18n.soldOut ? this.config.i18n.soldOut : 'Sold out' ) +
+					'</span>';
 			}
 			html += '</div>';
 
@@ -662,8 +674,11 @@
 		 */
 		updateResultsCount: function ( total ) {
 			if ( this.dom.resultsCount ) {
-				this.dom.resultsCount.textContent =
-					total + ' ' + ( total === 1 ? 'product' : 'products' );
+				var i18n = this.config.i18n || {};
+				var label = total === 1
+					? ( i18n.product || 'product' )
+					: ( i18n.products || 'products' );
+				this.dom.resultsCount.textContent = total + ' ' + label;
 			}
 		},
 
@@ -726,7 +741,10 @@
 					var remove = document.createElement( 'button' );
 					remove.className = 'wff-tag-remove';
 					remove.textContent = '\u00d7';
-					remove.setAttribute( 'aria-label', 'Remove filter: ' + tag.text );
+					var removeLabel = ( self.config.i18n && self.config.i18n.removeFilter )
+						? self.config.i18n.removeFilter
+						: 'Remove filter:';
+					remove.setAttribute( 'aria-label', removeLabel + ' ' + tag.text );
 					remove.addEventListener( 'click', function () {
 						if ( tag.input ) {
 							tag.input.checked = false;
@@ -736,11 +754,10 @@
 						} else if ( tag.type === 'price' ) {
 							self.resetPrice();
 						}
-						if ( self.autoApply ) {
-							self.currentPage = 1;
-							self.fetchProducts();
-						}
+						// Always fetch when removing a tag - expected UX behavior.
+						self.currentPage = 1;
 						self.updateActiveFilters();
+						self.fetchProducts();
 					} );
 
 					el.appendChild( remove );

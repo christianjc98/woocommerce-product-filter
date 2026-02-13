@@ -263,7 +263,10 @@ $wrapper_classes = sprintf(
 		</div>
 
 		<div class="wff-no-results" hidden>
-			<p><?php esc_html_e( 'No products match your filters.', 'woo-fast-filter' ); ?></p>
+			<p><?php esc_html_e( 'No products found.', 'woo-fast-filter' ); ?></p>
+			<button type="button" class="wff-no-results-reset">
+				<?php esc_html_e( 'Clear filters', 'woo-fast-filter' ); ?>
+			</button>
 		</div>
 
 		<div class="wff-pagination"></div>

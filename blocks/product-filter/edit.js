@@ -21,11 +21,10 @@
 	var el                 = wp.element.createElement;
 	var Fragment           = wp.element.Fragment;
 	var InspectorControls  = wp.blockEditor.InspectorControls;
-	var useBlockProps       = wp.blockEditor.useBlockProps;
+	var useBlockProps      = wp.blockEditor.useBlockProps;
 	var PanelBody          = wp.components.PanelBody;
 	var SelectControl      = wp.components.SelectControl;
 	var ToggleControl      = wp.components.ToggleControl;
-	var Placeholder        = wp.components.Placeholder;
 	var Icon               = wp.components.Icon;
 	var __                 = wp.i18n.__;
 
@@ -171,42 +170,37 @@
 				'div',
 				blockProps,
 				el(
-					Placeholder,
-					{
-						icon: el( Icon, { icon: 'filter' } ),
-						label: __( 'Product Filter', 'woo-fast-filter' ),
-						instructions: __(
-							'This block displays an AJAX product filter on the frontend.',
-							'woo-fast-filter'
-						),
-					},
+					'div',
+					{ className: 'wff-editor-placeholder' },
 					el(
 						'div',
-						{ className: 'wff-editor-preview' },
-						el( 'p', null,
-							__( 'Layout: ', 'woo-fast-filter' ) +
-							__( 'Sidebar', 'woo-fast-filter' ) +
-							( isPro ? '' : ' (' + __( 'Free', 'woo-fast-filter' ) + ')' )
-						),
-						el( 'p', null,
-							__( 'Style: ', 'woo-fast-filter' ) +
-							__( 'Clean', 'woo-fast-filter' ) +
-							( isPro ? '' : ' (' + __( 'Free', 'woo-fast-filter' ) + ')' )
-						),
-						el( 'p', null,
-							__( 'Auto-apply: ', 'woo-fast-filter' ) +
-							( currentAutoApply
-								? __( 'Yes', 'woo-fast-filter' )
-								: __( 'No', 'woo-fast-filter' )
-							)
-						),
-						el( 'p', null,
-							__( 'Active filters: ', 'woo-fast-filter' ) +
-							( showActiveFilters
-								? __( 'Visible', 'woo-fast-filter' )
-								: __( 'Hidden', 'woo-fast-filter' )
-							)
-						)
+						{ className: 'wff-editor-placeholder__icon' },
+						el( Icon, { icon: 'filter', size: 36 } )
+					),
+					el(
+						'h3',
+						{ className: 'wff-editor-placeholder__title' },
+						__( 'Woo Product Filter', 'woo-fast-filter' )
+					),
+					el(
+						'p',
+						{ className: 'wff-editor-placeholder__description' },
+						__( 'Displays category, attribute, and price filters with AJAX product loading.', 'woo-fast-filter' )
+					),
+					el(
+						'p',
+						{ className: 'wff-editor-placeholder__hint' },
+						__( 'Configure options in the block sidebar.', 'woo-fast-filter' )
+					),
+					el(
+						'div',
+						{ className: 'wff-editor-placeholder__settings' },
+						el( 'span', null, __( 'Active filters: ', 'woo-fast-filter' ) + ( showActiveFilters ? __( 'On', 'woo-fast-filter' ) : __( 'Off', 'woo-fast-filter' ) ) )
+					),
+					el(
+						'p',
+						{ className: 'wff-editor-placeholder__note' },
+						__( 'Live preview available on the frontend.', 'woo-fast-filter' )
 					)
 				)
 			)
