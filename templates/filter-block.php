@@ -51,8 +51,8 @@ $wrapper_classes = sprintf(
 );
 ?>
 <div class="<?php echo esc_attr( $wrapper_classes ); ?>"
-	data-auto-apply="<?php echo $auto_apply ? 'true' : 'false'; ?>"
-	data-show-active="<?php echo $show_active ? 'true' : 'false'; ?>"
+	data-auto-apply="<?php echo esc_attr( $auto_apply ? 'true' : 'false' ); ?>"
+	data-show-active="<?php echo esc_attr( $show_active ? 'true' : 'false' ); ?>"
 	data-layout="<?php echo esc_attr( $layout ); ?>">
 
 	<?php // Mobile filter toggle button. ?>

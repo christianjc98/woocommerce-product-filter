@@ -1,19 +1,17 @@
 <?php
 /**
  * Plugin Name: Woo Fast Filter
- * Plugin URI: https://example.com/woo-fast-filter
- * Description: High-performance WooCommerce product filtering with AJAX and Gutenberg block support.
- * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://example.com
- * License: GPL v2 or later
+ * Description: Lightweight AJAX product filter for WooCommerce. Filter by category, attributes, and price without page reloads.
+ * Version: 1.0.2
+ * Author: christianjc98
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: woo-fast-filter
  * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * WC requires at least: 7.0
- * WC tested up to: 8.0
+ * WC tested up to: 9.0
  *
  * @package WooFastFilter
  */
@@ -33,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Using constants instead of global variables for better performance
  * and to avoid polluting the global namespace.
  */
-define( 'WFF_VERSION', '1.0.0' );
+define( 'WFF_VERSION', '1.0.2' );
 define( 'WFF_PLUGIN_FILE', __FILE__ );
 define( 'WFF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WFF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

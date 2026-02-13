@@ -22,8 +22,6 @@
 	var Save = window.wffBlock && window.wffBlock.Save;
 
 	if ( ! Edit || ! Save ) {
-		// eslint-disable-next-line no-console
-		console.warn( 'WFF: edit.js or save.js failed to load. Block not registered.' );
 		return;
 	}
 
